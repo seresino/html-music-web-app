@@ -3,6 +3,8 @@ from flask import Flask, request, render_template
 from lib.database_connection import get_flask_database_connection
 from lib.album_repository import *
 from lib.album import *
+from lib.artist import *
+from lib.artist_repository import *
 
 
 # Create a new Flask app
@@ -19,14 +21,54 @@ def create_album():
     repository.create(album)
     return ""
 
+# new html route
 @app.route('/albums', methods = ['GET'])
 def get_albums():
     connection = get_flask_database_connection(app)
-    repository = AlbumRepository(connection) 
+    repository = AlbumRepository(connection)
     albums = repository.all()
-    album_strings = [f"Album({album.id}, {album.title}, {album.release_year}, {album.artist_id})" for album in albums]
-    result = ", ".join(album_strings)
-    return result
+    return render_template('albums/index.html', albums=albums)
+
+# new html route
+@app.route('/albums/<id>', methods = ['GET'])
+def get_album(id):
+    connection = get_flask_database_connection(app)
+    repository = AlbumRepository(connection)
+    album = repository.find(id)
+    repository = ArtistRepository(connection)
+    artist = repository.find(album.artist_id)
+    return render_template('albums/show.html', album=album, artist=artist)
+
+@app.route('/albums/<id>', methods=['DELETE'])
+def delete_album(id):
+    connection = get_flask_database_connection(app)
+    repository = AlbumRepository(connection)
+    repository.delete(id)
+    return "Album deleted successfully"
+
+@app.route('/artists', methods = ['GET'])
+def get_artists():
+    connection = get_flask_database_connection(app)
+    repository = ArtistRepository(connection)
+    artists = repository.all()
+    return render_template('artists/index.html', artists=artists)
+
+@app.route('/artists/<id>', methods = ['GET'])
+def get_artist(id):
+    connection = get_flask_database_connection(app)
+    repository = ArtistRepository(connection)
+    artist = repository.find_with_albums(id)
+    return render_template('artists/show.html', artist=artist)
+
+@app.route('/artists', methods = ['POST'])
+def create_artist():
+    connection = get_flask_database_connection(app)
+    repository = ArtistRepository(connection) 
+    artist = Artist(None, request.form['name'], request.form['genre'], [])
+    repository.create(artist)
+    return ""
+
+
 # == Example Code Below ==
 
 # GET /emoji

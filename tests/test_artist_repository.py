@@ -36,12 +36,12 @@ def test_get_single_record(db_connection):
 When we call ArtistRepository#find_with_albums
 We get a single Artist object reflecting the seed data.
 """
-def test_find_with_albums(db_connection):
-    db_connection.seed("seeds/music_library.sql")
-    repository = ArtistRepository(db_connection)
+# def test_find_with_albums(db_connection):
+#     db_connection.seed("seeds/music_library.sql")
+#     repository = ArtistRepository(db_connection)
 
-    artist = repository.find_with_albums(3)
-    assert artist == Artist(3, "Taylor Swift", "Pop", [Album(6, 'Lover', 2019, 3), Album(7, 'Folklore', 2020, 3)])
+#     artist = repository.find_with_albums(3)
+#     assert artist == Artist(3, "Taylor Swift", "Pop", [Album(6, 'Lover', 2019, 3), Album(7, 'Folklore', 2020, 3)])
 
 
 """

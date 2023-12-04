@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Artist Page</title>
+    <meta charset="utf-8" />
+  </head>
+  <body>
+    <h1>{{artist.name}}</h1>
+    <p>Genre: {{artist.genre}}</p>
+    <h4>Albums:</h4>
+    {% for album in artist.albums %}
+      <div>
+        <p><a href="/albums/{{album.id}}">{{album.title}}</a></p>
+      </div>
+      {% endfor %}
+    <br>
+    <br>
+    <!-- This is a link to another page. -->
+    <a href="/artists">Back to all artists</a>
+  </body>
+</html>
