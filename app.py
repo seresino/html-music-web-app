@@ -1,6 +1,9 @@
 import os
 from flask import Flask, request, render_template
 from lib.database_connection import get_flask_database_connection
+from lib.album_repository import *
+from lib.album import *
+
 
 # Create a new Flask app
 app = Flask(__name__)
@@ -8,6 +11,22 @@ app = Flask(__name__)
 # == Your Routes Here ==
 
 
+@app.route('/albums', methods = ['POST'])
+def create_album():
+    connection = get_flask_database_connection(app)
+    repository = AlbumRepository(connection) 
+    album = Album(None, request.form['title'], request.form['release_year'], request.form['artist_id'])
+    repository.create(album)
+    return ""
+
+@app.route('/albums', methods = ['GET'])
+def get_albums():
+    connection = get_flask_database_connection(app)
+    repository = AlbumRepository(connection) 
+    albums = repository.all()
+    album_strings = [f"Album({album.id}, {album.title}, {album.release_year}, {album.artist_id})" for album in albums]
+    result = ", ".join(album_strings)
+    return result
 # == Example Code Below ==
 
 # GET /emoji
