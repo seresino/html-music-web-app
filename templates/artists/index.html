@@ -14,8 +14,12 @@
         <p><a href="/artists/{{artist.id}}">{{artist.name}}</a></p>
       </div>
       {% endfor %}
-
       <!-- Jinja isn't Python, so we need an endfor to close the loop -->
     </ul>
+
+    <!-- This is a link to another page. -->
+    <!-- The browser will send `GET /artists/new` when the user clicks this -->
+    <a href="/artists/new">Add a new artist</a>
+
   </body>
 </html>

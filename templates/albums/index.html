@@ -14,8 +14,11 @@
         <p>Title: <a href="/albums/{{album.id}}">{{album.title}}</a><br />Released: {{album.release_year}}</p>
       </div>
       {% endfor %}
-
       <!-- Jinja isn't Python, so we need an endfor to close the loop -->
     </ul>
+
+    <!-- This is a link to another page. -->
+    <!-- The browser will send `GET /albums/new` when the user clicks this -->
+    <a href="/albums/new">Add a new album</a>
   </body>
 </html>

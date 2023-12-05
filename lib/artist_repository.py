@@ -27,6 +27,9 @@ class ArtistRepository:
         rows = self._connection.execute(
             'SELECT * FROM artists JOIN albums ON albums.artist_id = artists.id WHERE artists.id = %s', [artist_id]
         )
+        if rows == []:
+            artist = self.find(artist_id)
+            return artist
         albums = []
         for row in rows:
             album = Album(row["id"], row["title"], row["release_year"], row["artist_id"])
@@ -37,9 +40,11 @@ class ArtistRepository:
     # Create a new artist
     # Do you want to get its id back? Look into RETURNING id;
     def create(self, artist):
-        self._connection.execute('INSERT INTO artists (name, genre) VALUES (%s, %s)', [
+        rows = self._connection.execute('INSERT INTO artists (name, genre) VALUES (%s, %s) RETURNING id', [
                                 artist.name, artist.genre])
-        return None
+        row = rows[0]
+        artist.id = row["id"]
+        return artist
 
     # Delete an artist by their id
     def delete(self, artist_id):

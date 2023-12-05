@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 from lib.database_connection import get_flask_database_connection
 from lib.album_repository import *
 from lib.album import *
@@ -12,15 +12,6 @@ app = Flask(__name__)
 
 # == Your Routes Here ==
 
-
-@app.route('/albums', methods = ['POST'])
-def create_album():
-    connection = get_flask_database_connection(app)
-    repository = AlbumRepository(connection) 
-    album = Album(None, request.form['title'], request.form['release_year'], request.form['artist_id'])
-    repository.create(album)
-    return ""
-
 # new html route
 @app.route('/albums', methods = ['GET'])
 def get_albums():
@@ -30,7 +21,7 @@ def get_albums():
     return render_template('albums/index.html', albums=albums)
 
 # new html route
-@app.route('/albums/<id>', methods = ['GET'])
+@app.route('/albums/<int:id>', methods = ['GET'])
 def get_album(id):
     connection = get_flask_database_connection(app)
     repository = AlbumRepository(connection)
@@ -39,7 +30,27 @@ def get_album(id):
     artist = repository.find(album.artist_id)
     return render_template('albums/show.html', album=album, artist=artist)
 
-@app.route('/albums/<id>', methods=['DELETE'])
+@app.route('/albums/new', methods = ['GET'])
+def get_album_new():
+    return render_template('albums/new.html')
+
+
+@app.route('/albums', methods = ['POST'])
+def create_album():
+    connection = get_flask_database_connection(app)
+    repository = AlbumRepository(connection) 
+    title = request.form['title']
+    release_year = request.form['release_year']
+    artist_id = request.form['artist_id']
+    album = Album(None, title, release_year, artist_id)
+
+    if not album.is_valid():
+        return render_template('albums/new.html', album=album, errors=album.generate_errors()), 400
+
+    repository.create(album)
+    return redirect(f"/albums/{album.id}")
+
+@app.route('/albums/<int:id>', methods=['DELETE'])
 def delete_album(id):
     connection = get_flask_database_connection(app)
     repository = AlbumRepository(connection)
@@ -53,21 +64,30 @@ def get_artists():
     artists = repository.all()
     return render_template('artists/index.html', artists=artists)
 
-@app.route('/artists/<id>', methods = ['GET'])
+@app.route('/artists/<int:id>', methods = ['GET'])
 def get_artist(id):
     connection = get_flask_database_connection(app)
     repository = ArtistRepository(connection)
     artist = repository.find_with_albums(id)
     return render_template('artists/show.html', artist=artist)
 
+@app.route('/artists/new', methods = ['GET'])
+def get_artist_new():
+    return render_template('artists/new.html')
+
 @app.route('/artists', methods = ['POST'])
 def create_artist():
     connection = get_flask_database_connection(app)
     repository = ArtistRepository(connection) 
-    artist = Artist(None, request.form['name'], request.form['genre'], [])
-    repository.create(artist)
-    return ""
+    name = request.form['name']
+    genre = request.form['genre']
+    artist = Artist(None, name, genre)
 
+    if not artist.is_valid():
+        return render_template('artists/new.html', artist=artist, errors=artist.generate_errors()), 400
+
+    repository.create(artist)
+    return redirect(f"/artists/{artist.id}")
 
 # == Example Code Below ==
 

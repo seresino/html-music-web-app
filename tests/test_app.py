@@ -62,6 +62,39 @@ def test_album_show_page_goes_back(page, test_web_address, db_connection):
 
 
 """
+When I create a new album
+I can see it in the albums index
+"""
+def test_create_album(page, test_web_address, db_connection):
+    db_connection.seed("seeds/music_library.sql")
+    page.goto(f"http://{test_web_address}/albums")
+    page.click("text=Add a new album")
+
+    page.fill("input[name='title']", "Little Girl Blue")
+    page.fill("input[name='release_year']", "1959")
+    page.fill("input[name='artist_id']", "4")
+    page.click("text=Add Album")
+
+    album_title = page.locator("h1")
+    expect(album_title).to_have_text("Little Girl Blue")
+
+"""
+If we create a new album without a title, release_year or artist_id
+We see an error message
+"""
+def test_create_album_error(db_connection, page, test_web_address):
+    db_connection.seed("seeds/music_library.sql")
+    page.goto(f"http://{test_web_address}/albums")
+    page.click("text=Add a new album")
+    page.click("text=Add Album")
+    errors = page.locator(".t-errors")
+    expect(errors).to_have_text("There were errors with your submission: Title can't be blank, Release Year can't be blank, Artist can't be blank")
+
+
+
+
+
+"""
 When I call GET /artists/<id>
 The corresponding artist page is returned
 """
@@ -104,81 +137,50 @@ def test_artist_show_page_goes_back(page, test_web_address, db_connection):
     "Nina Simone"]
     expect(artist_list).to_have_text(text)
 
+"""
+When I create a new artist
+I can see it in the artists index
+"""
+def test_create_artist(page, test_web_address, db_connection):
+    db_connection.seed("seeds/music_library.sql")
+    page.goto(f"http://{test_web_address}/artists")
+    page.click("text=Add a new artist")
 
+    page.fill("input[name='name']", "Ruby Seresin")
+    page.fill("input[name='genre']", "Pop")
+    page.click("text=Add Artist")
 
+    name = page.locator("h1")
+    expect(name).to_have_text("Ruby Seresin")
 
 """
-When I call GET /albums 
-All albums are returned
+If we create a new artists without a name or genre
+We see an error message
 """
-# def test_get_albums(db_connection, web_client):
-#     db_connection.seed("seeds/music_library.sql")
-
-#     get_response = web_client.get("/albums")
-#     assert get_response.status_code == 200
-#     assert get_response.data.decode("utf-8") == "Album(1, Doolittle, 1989, 1), Album(2, Waterloo, 1974, 2), Album(3, Lover, 2019, 3), Album(4, Baltimore, 1978, 4)"
-
-"""
-When I call GET /albums/<id>
-The album with the correspdonding id is returned
-"""
-# def test_get_album(db_connection, web_client):
-#     db_connection.seed("seeds/music_library.sql")
-#     get_response = web_client.get("/albums/3")
-#     assert get_response.status_code == 200
-#     assert get_response.data.decode("utf-8") == "Album(3, Lover, 2019, 3)"
+def test_create_artist_error(db_connection, page, test_web_address):
+    db_connection.seed("seeds/music_library.sql")
+    page.goto(f"http://{test_web_address}/artists")
+    page.click("text=Add a new artist")
+    page.click("text=Add Artist")
+    errors = page.locator(".t-errors")
+    expect(errors).to_have_text("There were errors with your submission: Name can't be blank, Genre can't be blank")
 
 """
-When I call POST /albums with album info
-That album is now in the list returned by GET /albums
+When we delete a book
+We no longer see it in the books index
 """
-# def test_post_albums(db_connection, web_client):
-#     db_connection.seed("seeds/music_library.sql")
-#     post_response = web_client.post("/albums", data =
-#     {
-#         'title': 'Little Girl Blue',
-#         'release_year': '1959',
-#         'artist_id': 4
-#     })
-#     assert post_response.status_code == 200
-#     assert post_response.data.decode("utf-8") == ""
-
-#     get_response = web_client.get("/albums")
-#     assert get_response.status_code == 200
-#     assert get_response.data.decode("utf-8") == "Album(1, Doolittle, 1989, 1), Album(2, Waterloo, 1974, 2), Album(3, Lover, 2019, 3), Album(4, Baltimore, 1978, 4), Album(5, Little Girl Blue, 1959, 4)"
-
-"""
-When I call GET /artists
-All artists are returned
-"""
-# def test_get_artists(db_connection, web_client):
-#     db_connection.seed("seeds/music_library.sql")
-
-#     get_response = web_client.get("/artists")
-#     assert get_response.status_code == 200
-#     assert get_response.data.decode("utf-8") == "Pixies, ABBA, Taylor Swift, Nina Simone"
-
-"""
-When I call POST /artists with artist info name = 'Wild Nothing' and genre 'Indie'
-That artist is now in the list returned by GET /artists
-"""
-# def test_post_artists(db_connection, web_client):
-#     db_connection.seed("seeds/music_library.sql")
-
-#     post_response = web_client.post("/artists", data = 
-#     {
-#         'name': 'Wild Nothing',
-#         'genre': 'Indie'
-#     })
-
-#     assert post_response.status_code == 200
-#     assert post_response.data.decode("utf-8") == ""
-
-#     get_response = web_client.get("/artists")
-#     assert get_response.status_code == 200
-#     assert get_response.data.decode("utf-8") == "Pixies, ABBA, Taylor Swift, Nina Simone, Wild Nothing"
-
-
+# def test_delete_book(db_connection, page, test_web_address):
+#     db_connection.seed("seeds/book_store.sql")
+#     page.goto(f"http://{test_web_address}/books")
+#     page.click("text=Invisible Cities by Italo Calvino")
+#     page.click("text=Delete Book")
+#     list_items = page.locator("li")
+#     expect(list_items).to_have_text([
+#         "The Man Who Was Thursday by GK Chesterton",
+#         "Bluets by Maggie Nelson",
+#         "No Place on Earth by Christa Wolf",
+#         "Nevada by Imogen Binnie",
+#     ])
 
 
 
